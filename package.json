@@ -1,0 +1,35 @@
+{
+  "name": "generic-merchant",
+  "version": "0.0.1",
+  "private": true,
+  "description": "A generic payment processing library for gateway and integration payment providers",
+  "keywords": [
+    "merchant",
+    "gateway",
+    "money"
+  ],
+  "license": "DUNNO YET",
+  "homepage": "http://homepage.site.com",
+  "bugs": "http://bugs.site.com",
+  "repository": {
+    "type": "git",
+    "url": " http://repo.site.com"
+  },
+  "author": {
+    "name": "James Sapara",
+    "email": "james.sapara@gmail.com",
+    "url": "http://blog.sapara.com"
+  },
+  "contributors": [],
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-mocha-test": "~0.8.2",
+    "blanket": "~1.1.6",
+    "grunt-contrib-watch": "~0.5.3",
+    "chai": "~1.8.1"
+  }
+}
