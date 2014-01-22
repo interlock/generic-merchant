@@ -8,12 +8,12 @@
     "gateway",
     "money"
   ],
-  "license": "DUNNO YET",
-  "homepage": "http://homepage.site.com",
-  "bugs": "http://bugs.site.com",
+  "license": "MIT",
+  "homepage": "https://github.com/interlock/generic-merchant",
+  "bugs": "https://github.com/interlock/generic-merchant/issues",
   "repository": {
     "type": "git",
-    "url": " http://repo.site.com"
+    "url": " https://github.com/interlock/generic-merchant.git"
   },
   "author": {
     "name": "James Sapara",
@@ -23,6 +23,9 @@
   "contributors": [],
   "engines": {
     "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "grunt test"
   },
   "dependencies": {},
   "devDependencies": {

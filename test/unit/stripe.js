@@ -126,10 +126,10 @@ describe('StripeGateway', function() {
     describe('Response', function() {
       it('success to true on success');
       it('success to false on failure');
-      it('message ')
+
     });
   });
 
-  describe('add_expand_parameters');
+  //describe('add_expand_parameters');
 
 });
