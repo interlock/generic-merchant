@@ -1,4 +1,5 @@
 var assert = require('chai').assert;
+var Response = require('../lib/response');
 
 describe('response', function() {
 
@@ -42,8 +43,16 @@ describe('response', function() {
   });
 
   describe('constructor', function() {
-    it('sets success');
-    it('sets message');
+    var response;
+    beforeEach(function() {
+      response = new Response(true, "Transaction Successfull");
+    });
+    it('sets success',function() {
+      assert.equal(response.success,true);
+    });
+    it('sets message',function() {
+      assert.equal(response.message,"Transaction Successfull");
+    });
     it('sets params if given');
     it('sets authorization with options.authorization');
     it('sets fraud_review with options.fraud_review');
