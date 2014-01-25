@@ -9,7 +9,7 @@ module.exports = function(grunt) {
     node: true,
     indent: 2,
     nomen: true,
-    predef: ['describe','it']
+    predef: ['describe','it','beforeEach']
   };
 
   // Project configuration.
