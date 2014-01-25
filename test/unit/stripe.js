@@ -1,6 +1,8 @@
+"use strict";
+
 var assert = require('chai').assert;
 
-describe('StripeGateway', function() {
+describe('StripeGateway', function () {
   it('sets live_url');
   it('defines supported countries');
   it('has default currency of USD');
@@ -9,7 +11,7 @@ describe('StripeGateway', function() {
   it('defines homepage_url');
   it('defines display name');
 
-  describe('constructor', function() {
+  describe('constructor', function () {
     it('requires login');
     it('sets api_key with login');
     it('sets fee_refund_api_key with option value');
@@ -17,25 +19,25 @@ describe('StripeGateway', function() {
     it('calls Gateway constructor');
   });
 
-  describe('api_key', function() {
+  describe('api_key', function () {
     it('is property');
   });
 
-  describe('fee_refund_api_key', function() {
+  describe('fee_refund_api_key', function () {
     it('is property');
   });
 
-  describe('version', function() {
+  describe('version', function () {
     it('is property');
   });
 
-  describe('authorize', function() {
+  describe('authorize', function () {
     it('is function');
     it('calls create_post_for_auth_or_purchase');
     it('calls commit');
   });
 
-  describe('create_post_for_auth_or_purchase', function() {
+  describe('create_post_for_auth_or_purchase', function () {
     it('is function');
     it('calls add amount');
     it('calls add creditcard');
@@ -48,7 +50,7 @@ describe('StripeGateway', function() {
     it('returns post');
   });
 
-  describe('add_amount', function() {
+  describe('add_amount', function () {
     it('is function');
     it('sets amount');
     it('sets currency to options value');
@@ -56,10 +58,10 @@ describe('StripeGateway', function() {
     it('lower cases currency');
   });
 
-  describe('add_creditcard', function() {
+  describe('add_creditcard', function () {
     it('is function');
     it('sets card on post');
-    describe('if instance of CreditCard', function() {
+    describe('if instance of CreditCard', function () {
       it('sets swipe_data if track_data provided');
       it('sets number');
       it('sets exp_month');
@@ -69,13 +71,13 @@ describe('StripeGateway', function() {
       it('calls add_address');
     });
 
-    describe('if string', function() {
+    describe('if string', function () {
       it('sets swipe_data if track_data provided');
       it('sets card to string if not track_data provided');
     });
   });
 
-  describe('add_address', function() {
+  describe('add_address', function () {
     it('is function');
     it('returns immediately if post.card is instance of Hash');
     it('uses billing address if present');
@@ -88,32 +90,32 @@ describe('StripeGateway', function() {
     it('sets address_city');
   });
 
-  describe('add_customer', function() {
+  describe('add_customer', function () {
     it('is function');
     it('sets customer to options customer if provided and credit_card number not set');
   });
 
-  describe('add_customer_data', function() {
+  describe('add_customer_data', function () {
     it('is function');
     it('merges in description, ip, user_agent, referrer to metadata');
     it('sets external_id to options.order_id');
     it('sets payment_user_agent');
   });
 
-  describe('add_flags', function() {
+  describe('add_flags', function () {
     it('is function');
     it('sets uncaptured to true if options.uncaptured true');
   });
 
-  describe('add_application_fee', function() {
+  describe('add_application_fee', function () {
     it('is function');
     it('sets application fee to options.application_fee if present');
   });
 
-  describe('commit', function() {
+  describe('commit', function () {
     it('is function');
     it('calls add_expand_parameters if parameters provided');
-    describe('request', function() {
+    describe('request', function () {
       it('calls with method');
       it('calls with url');
       it('posts with parameters');
@@ -123,7 +125,7 @@ describe('StripeGateway', function() {
     it('handles error in response');
     it('handles parse error');
     it('returns instance of Response on success');
-    describe('Response', function() {
+    describe('Response', function () {
       it('success to true on success');
       it('success to false on failure');
 

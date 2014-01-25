@@ -3,6 +3,14 @@ module.exports = function(grunt) {
   // Load Grunt Tasks
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-jslint');
+
+  var jslint_directives = {
+    node: true,
+    indent: 2,
+    nomen: true,
+    predef: ['describe','it']
+  };
 
   // Project configuration.
   grunt.initConfig({
@@ -34,13 +42,23 @@ module.exports = function(grunt) {
           spawn: false,
         },
         files: ['lib/**/*.js','test/**/*.js'],
-        tasks: ['mochaTest']
+        tasks: ['jslint','mochaTest']
       }
-    }
+    },
+    jslint: {
+      unit: {
+        src: ['test/*.js','test/unit/**/*.js'],
+        directives: jslint_directives
+      },
+      lib: {
+        src: ['lib/**/*.js'],
+        directives: jslint_directives
+      }
+    },
   });
 
   // Default task(s).
   grunt.registerTask('default', ['mochaTest']);
-  grunt.registerTask('test',['mochaTest']);
+  grunt.registerTask('test',['jslint','mochaTest']);
 
 };
