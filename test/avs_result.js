@@ -25,6 +25,29 @@ describe('avs_result', function () {
     });
   });
 
+  describe('MESSAGES class property', function () {
+    it('is property', function () {
+      assert.property(AVSResult, 'MESSAGES');
+    });
+    it('is object', function () {
+      assert.isObject(AVSResult.MESSAGES);
+    });
+  });
+
+  describe('message', function () {
+    it('is property', function () {
+      assert.property(avsResult, 'message');
+    });
+    it('returns mapped value from MESSAGES', function () {
+      assert.equal(avsResult.message, 'Street address and postal code match.');
+    });
+    it('throws exception if you try to set', function () {
+      assert.throw(function () {
+        avsResult.message = "Test";
+      }, Error);
+    });
+  });
+
   describe('toJSON', function () {
     it('returns approprite fields', function () {
       assert.deepEqual(avsResult.toJSON(), {code: 'D', 'message': 'Street address and postal code match.', street_match: '', postal_match: ''});
