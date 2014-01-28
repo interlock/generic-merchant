@@ -60,4 +60,20 @@ describe('billing', function () {
       assert.equal(billing.integration_mode, 'test');
     });
   });
+
+  describe('isTest', function () {
+    it('is function', function () {
+      assert.isFunction(billing.isTest);
+    });
+
+    it('returns true is integration_mode is test', function () {
+      billing.integration_mode = 'test';
+      assert.isTrue(billing.isTest());
+    });
+
+    it('returns false if integration_mode is not test', function () {
+      billing.integration_mode = 'production';
+      assert.isFalse(billing.isTest());
+    });
+  });
 });
