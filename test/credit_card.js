@@ -1,6 +1,11 @@
 "use strict";
 
 var assert = require('chai').assert;
+var sinon = require("sinon");
+var sinonChai = require("sinon-chai");
+
+require('chai').use(sinonChai);
+
 var CreditCard = require('../lib/credit_card');
 var ExpiryDate = require('../lib/expiry_date');
 
@@ -81,74 +86,251 @@ describe('credit_card', function () {
   });
 
   describe('expired', function () {
-    it('is function');
-    it('gets expiry_date');
-    it('calls expired on expiry_date');
+    it('is function', function () {
+      assert.isFunction(creditCard.expired);
+    });
+
+    it('returns false if not expired', function () {
+      creditCard.month = 12;
+      creditCard.year = 2020;
+      assert.equal(creditCard.expired(), false);
+    });
+
+    it('returns true if expired', function () {
+      creditCard.month = 12;
+      creditCard.year = 2000;
+      assert.equal(creditCard.expired(), true);
+    });
   });
 
-  describe('has_name', function () {
-    it('is property');
-    it('returns false if first_name or last_name are null');
-    it('returns true if first_name and last_name are not null');
+  describe('hasName', function () {
+    it('is function', function () {
+      assert.isFunction(creditCard.hasName);
+    });
+
+    it('returns false if hasFirstName is false', function () {
+      creditCard.first_name = null;
+      creditCard.last_name = "Testor";
+      assert.equal(creditCard.hasName(), false);
+    });
+
+    it('returns false if hasLastName is false', function () {
+      creditCard.first_name = "Tester";
+      creditCard.last_name = null;
+      assert.equal(creditCard.hasName(), false);
+    });
+
+    it('returns false if has[firstName|lastName] are false', function () {
+      creditCard.first_name = null;
+      creditCard.last_name = null;
+      assert.equal(creditCard.hasName(), false);
+    });
+
+    it('returns true if hasFirstName and hasLastName are true', function () {
+      creditCard.first_name = "Tester";
+      creditCard.last_name = "Testson";
+      assert.equal(creditCard.hasName(), true);
+    });
   });
 
-  describe('has_first_name', function () {
-    it('is property');
-    it('returns false if first_name is null');
-    it('returns true if first_name is not null');
+  describe('hasFirstName', function () {
+    it('is function', function () {
+      assert.isFunction(creditCard.hasFirstName);
+    });
+
+    it('returns false if first_name is null', function () {
+      creditCard.first_name = null;
+      assert.equal(creditCard.hasFirstName(), false);
+    });
+
+    it('returns false if first_name is empty string', function () {
+      creditCard.first_name = "";
+      assert.equal(creditCard.hasFirstName(), false);
+    });
+    it('returns true if first_name is not null', function () {
+      creditCard.first_name = "Tester";
+      assert.equal(creditCard.hasFirstName(), true);
+    });
   });
 
-  describe('has_last_name', function () {
-    it('is property');
-    it('returns false if last_name is null');
-    it('returns true if last_name is not null');
+  describe('hasLastName', function () {
+    it('is function', function () {
+      assert.isFunction(creditCard.hasLastName);
+    });
+
+    it('returns false if first_name is null', function () {
+      creditCard.last_name = null;
+      assert.equal(creditCard.hasLastName(), false);
+    });
+
+    it('returns false if last_name is empty string', function () {
+      creditCard.last_name = "";
+      assert.equal(creditCard.hasLastName(), false);
+    });
+    it('returns true if last_name is not null', function () {
+      creditCard.last_name = "Tester";
+      assert.equal(creditCard.hasLastName(), true);
+    });
   });
 
   describe('name', function () {
-    it('is function');
-    it('returns first and last name concated with space between');
+    it('is property', function () {
+      assert.property(creditCard, 'name');
+    });
+    it('returns first and last name concated with space between', function () {
+      creditCard.first_name = "Tester";
+      creditCard.last_name = "Testerson";
+      assert.equal(creditCard.name, "Tester Testerson");
+    });
   });
 
   describe('display_number', function () {
-    it('is function');
-    it('returns with last four numbers');
-    it('masks with X');
+    beforeEach(function () {
+      creditCard.number = "5454545454541234";
+    });
+
+    it('is property', function () {
+      assert.property(creditCard, 'display_number');
+    });
+
+    it('returns with last four numbers', function () {
+      assert.match(creditCard.display_number, /1234$/);
+    });
+    it('masks with X', function () {
+      assert.match(creditCard.display_number, /[X]+1234$/);
+    });
   });
 
   describe('first_digits', function () {
-    it('is function');
-    it('returns first 6 digits');
+    beforeEach(function () {
+      creditCard.number = "1234567777";
+    });
+
+    it('is property', function () {
+      assert.property(creditCard, 'first_digits');
+    });
+
+    it('returns first 6 digits', function () {
+      assert.equal(creditCard.first_digits, '123456');
+    });
   });
 
   describe('last_digits', function () {
-    it('is function');
-    it('returns last four digits');
+    beforeEach(function () {
+      creditCard.number = "12345678888";
+    });
+
+    it('is property', function () {
+      assert.property(creditCard, 'last_digits');
+    });
+
+    it('returns last four digits', function () {
+      assert.equal(creditCard.last_digits, '8888');
+    });
+  });
+
+  describe('errors', function () {
+    it('is property', function () {
+      assert.property(creditCard, 'errors');
+    });
+
+    it('is object by default', function () {
+      assert.instanceOf(creditCard.errors, Object);
+    });
   });
 
   describe('validate', function () {
-    it('is function');
-    it('checks essential properties');
-    it('checks brand');
-    it('checks number');
-    it('checks verification_value');
-    it('passes on bogus type');
+    it('is function', function () {
+      assert.isFunction(creditCard.validate);
+    });
+
+    // it('checks essential properties', function () {
+
+    // });
+
+    // it('checks brand', function () {
+
+    // });
+
+    // it('checks number', function () {
+
+    // });
+
+    // it('checks verification_value', function () {
+
+    // });
+
+    // it('passes on bogus type', function () {
+
+    // });
   });
 
-  describe('validate properties', function () {
-    it('is function');
-    it('error if first_name null');
-    it('error if last_name null');
-    it('error if month is null');
-    it('error if year is null');
-    it('error if month is < 1');
-    it('error if month is > 12');
-    it('error if year < current year');
+  describe('validate_properties', function () {
+    beforeEach(function () {
+      creditCard.first_name = "Tester";
+      creditCard.last_name = "Testerson";
+      creditCard.month = 12;
+      creditCard.year = 2020;
+    });
+
+    it('is function', function () {
+      assert.isFunction(creditCard.validate_properties);
+    });
+    it('error if first_name null', function () {
+      creditCard.first_name = null;
+      creditCard.validate_properties();
+      assert.deepEqual(creditCard.errors, {first_name: 'Must be set'});
+    });
+    it('error if last_name null', function () {
+      creditCard.last_name = null;
+      creditCard.validate_properties();
+      assert.deepEqual(creditCard.errors, {last_name: 'Must be set'});
+    });
+    it('error if month is null', function () {
+      creditCard.month = null;
+      creditCard.validate_properties();
+      assert.deepEqual(creditCard.errors, {month: 'Must be set'});
+    });
+    it('error if year is null', function () {
+      creditCard.year = null;
+      creditCard.validate_properties();
+      assert.deepEqual(creditCard.errors, {year: 'Must be set'});
+    });
+    it('error if month is < 1', function () {
+      creditCard.month = 0;
+      creditCard.validate_properties();
+      assert.deepEqual(creditCard.errors, {month: 'Must be > 0'});
+    });
+    it('error if month is > 12', function () {
+      creditCard.month = 13;
+      creditCard.validate_properties();
+      assert.deepEqual(creditCard.errors, {month: 'Must be <= 12'});
+    });
+    it('error if expired', function () {
+      creditCard.month = 12;
+      creditCard.year = 2000;
+      creditCard.validate_properties();
+      assert.deepEqual(creditCard.errors, {year: 'Expired'});
+    });
   });
 
-  describe('validate brand', function () {
-    it('is function');
-    it('error if null');
-    it('error if not in card_companies list');
+  describe('validate_brand', function () {
+    beforeEach(function () {
+      creditCard.brand = 'visa';
+    });
+    it('is function', function () {
+      assert.isFunction(creditCard.validate_brand);
+    });
+    it('error if null', function () {
+      creditCard.brand = null;
+      creditCard.validate_brand();
+      assert.deepEqual(creditCard.errors, {brand: 'Is required'});
+    });
+    it('error if not in card_companies list', function () {
+      creditCard.brand = 'madeup';
+      creditCard.validate_brand();
+      assert.deepEqual(creditCard.errors, {brand: 'Is invalid'});
+    });
   });
 
   describe('validate number', function () {
