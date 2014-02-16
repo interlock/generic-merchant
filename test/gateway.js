@@ -196,7 +196,12 @@ describe('gateway', function () {
   });
 
   describe('currency', function () {
-    it('is function');
-    it('returns default_currency');
+    it('is function', function () {
+      assert.isFunction(gateway.currency);
+    });
+
+    it('returns default_currency', function () {
+      assert.equal(gateway.currency(), gateway.default_currency);
+    });
   });
 });
