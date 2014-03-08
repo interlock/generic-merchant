@@ -22,6 +22,16 @@ describe('credit_card', function () {
     });
   });
 
+  describe('hasNumber', function () {
+    it('returns false if number not set', function () {
+      assert.isFalse(creditCard.hasNumber());
+    });
+    it('returns true if number is set', function () {
+      creditCard.number = '4545454545454545';
+      assert.isTrue(creditCard.hasNumber());
+    });
+  });
+
   describe('month', function () {
     it('is property', function () {
       assert.property(creditCard, 'month');
@@ -334,16 +344,48 @@ describe('credit_card', function () {
   });
 
   describe('validate number', function () {
-    it('is function');
-    it('error if null');
-    it('error if not valid number');
-    it('error if does not match brand regex');
+    beforeEach(function () {
+      creditCard.number = "4545454545454545";
+    });
+    it('is function', function () {
+      assert.isFunction(creditCard.validate_number);
+    });
+    it('error if null', function () {
+      creditCard.number = null;
+      creditCard.validate_number();
+      assert.deepEqual(creditCard.errors, {number: 'Is required'});
+    });
+    it('error if is not long enough', function () {
+      creditCard.number = '4545';
+      creditCard.validate_number();
+      assert.deepEqual(creditCard.errors, {number: 'Is not long enough to be a valid credit card number'});
+    });
+    it('error if card checksum is invalid', function () {
+      creditCard.number = '454545454545454';
+      creditCard.validate_number();
+      assert.deepEqual(creditCard.errors, {number: 'Is not a valid credit card number'});
+    });
+    it('error if does not match brand regex', function () {
+      creditCard.brand = 'mastercard';
+      creditCard.number = '4111111111111111';
+      creditCard.validate_number();
+      assert.deepEqual(creditCard.errors, {brand: 'Does not match card'});
+    });
   });
 
   describe('validate verification_value', function () {
-    it('is function');
-    it('error if value null and required');
-    it('no error if value null and not required');
+    it('is function', function () {
+      assert.isFunction(creditCard.validate_verification_value);
+    });
+    it('error if value null and required', function () {
+      creditCard.validate_verification_value();
+      assert.deepEqual(creditCard.errors, {verification_value: "Is required"});
+    });
+    it('no error if value null and not required', function () {
+      creditCard.verification_value = '123';
+      creditCard.validate_verification_value();
+      assert.deepEqual(creditCard.errors, {});
+    });
   });
 
 });
