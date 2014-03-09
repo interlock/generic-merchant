@@ -239,6 +239,20 @@ describe('credit_card', function () {
     });
   });
 
+  describe('hasTrackData', function () {
+    it('false if null', function () {
+      assert.isFalse(creditCard.hasTrackData());
+    });
+    it('false if empty string', function () {
+      creditCard.track_data = "";
+      assert.isFalse(creditCard.hasTrackData());
+    });
+    it('true if not empty string', function () {
+      creditCard.track_data = "ACDC";
+      assert.isTrue(creditCard.hasTrackData());
+    });
+  });
+
   describe('errors', function () {
     it('is property', function () {
       assert.property(creditCard, 'errors');

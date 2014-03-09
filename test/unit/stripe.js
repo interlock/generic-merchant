@@ -2,10 +2,20 @@
 
 var assert = require('chai').assert;
 
-describe('StripeGateway', function () {
+var StripeGateway = require('../../lib/gateways/stripe');
+var CreditCard = require('../../lib/credit_card');
+
+describe.only('StripeGateway', function () {
+  var stripeGateway = null;
+
+  beforeEach(function () {
+    stripeGateway = new StripeGateway();
+  });
   it('sets live_url');
   it('defines supported countries');
-  it('has default currency of USD');
+  it('has default currency of USD', function () {
+    assert.equal(stripeGateway.default_currency, 'usd');
+  });
   it('money_format is cents');
   it('defines supported card_types');
   it('defines homepage_url');
@@ -38,7 +48,9 @@ describe('StripeGateway', function () {
   });
 
   describe('create_post_for_auth_or_purchase', function () {
-    it('is function');
+    it('is function', function () {
+      assert.isFunction(stripeGateway.create_post_for_auth_or_purchase);
+    });
     it('calls add amount');
     it('calls add creditcard');
     it('calls add customer');
@@ -51,35 +63,100 @@ describe('StripeGateway', function () {
   });
 
   describe('add_amount', function () {
-    it('is function');
-    it('sets amount');
-    it('sets currency to options value');
-    it('sets currency to default is not provided in options');
-    it('lower cases currency');
+    var post = null;
+    beforeEach(function () {
+      post = {};
+    });
+    it('is function', function () {
+      assert.isFunction(stripeGateway.add_amount);
+    });
+    it('sets amount', function () {
+      stripeGateway.add_amount(post, 1000, {});
+      assert.equal(post.amount, 1000);
+    });
+    it('sets currency to options value', function () {
+      stripeGateway.add_amount(post, 1000, {currency: 'usd'});
+      assert.deepEqual(post, {amount: 1000, currency: 'usd'});
+    });
+    it('sets currency to default is not provided in options', function () {
+      stripeGateway.add_amount(post, 1000, {});
+      assert.deepEqual(post, {amount: 1000, currency: 'usd'});
+    });
+    it('lower cases currency', function () {
+      stripeGateway.add_amount(post, 1000, {currency: 'USD'});
+      assert.deepEqual(post, {amount: 1000, currency: 'usd'});
+    });
   });
 
   describe('add_creditcard', function () {
-    it('is function');
-    it('sets card on post');
+    var post = null;
+    beforeEach(function () {
+      post = {};
+    });
+    it('is function', function () {
+      assert.isFunction(stripeGateway.add_creditcard);
+    });
+    it('sets card on post', function () {
+      stripeGateway.add_creditcard(post, {}, {});
+      assert.isObject(post.card);
+    });
     describe('if instance of CreditCard', function () {
-      it('sets swipe_data if track_data provided');
-      it('sets number');
-      it('sets exp_month');
-      it('sets exp_year');
-      it('sets cvc if present');
-      it('sets name if not empty');
-      it('calls add_address');
+      var card = null;
+      beforeEach(function () {
+        card = new CreditCard();
+        card.number = "4545454545454545";
+        card.month = "12";
+        card.year = "2020";
+        card.verification_value = "123";
+        card.first_name = "Smith";
+        card.last_name = "Smither";
+      });
+      it('sets swipe_data if track_data provided', function () {
+        card.track_data = "ACDC";
+        stripeGateway.add_creditcard(post, card, {});
+        assert.equal(post.card.swipe_data, card.track_data);
+      });
+      it('sets number', function () {
+        stripeGateway.add_creditcard(post, card, {});
+        assert.equal(post.card.number, card.number);
+      });
+      it('sets exp_month', function () {
+        stripeGateway.add_creditcard(post, card, {});
+        assert.equal(post.card.exp_month, card.month);
+      });
+      it('sets exp_year', function () {
+        stripeGateway.add_creditcard(post, card, {});
+        assert.equal(post.card.exp_year, card.year);
+      });
+      it('sets cvc if present', function () {
+        stripeGateway.add_creditcard(post, card, {});
+        assert.equal(post.card.cvc, card.verification_value);
+      });
+      it('sets name if not empty', function () {
+        stripeGateway.add_creditcard(post, card, {});
+        assert.equal(post.card.name, card.name);
+      });
+      it('calls add_address', function () {
+        // spy on add_address
+        // assert that it was called
+        return;
+      });
     });
 
     describe('if string', function () {
-      it('sets swipe_data if track_data provided');
-      it('sets card to string if not track_data provided');
+      it('sets swipe_data if track_data provided', function () {
+        stripeGateway.add_creditcard(post, "ABC123", {track_data: "XYZ789"});
+        assert.equal(post.card.swipe_data, 'XYZ789');
+      });
+      it('sets card to string if not track_data provided', function () {
+        stripeGateway.add_creditcard(post, "ABC123", {});
+        assert.equal(post.card, 'ABC123');
+      });
     });
   });
 
   describe('add_address', function () {
-    it('is function');
-    it('returns immediately if post.card is instance of Hash');
+    it('returns immediately if post.card is instance of Object');
     it('uses billing address if present');
     it('uses address if no billing address present');
     it('sets address_line1');
