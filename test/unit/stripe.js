@@ -1,6 +1,8 @@
 "use strict";
 
 var assert = require('chai').assert;
+var sinon = require('sinon');
+var _ = require('underscore');
 
 var StripeGateway = require('../../lib/gateways/stripe');
 var CreditCard = require('../../lib/credit_card');
@@ -11,15 +13,25 @@ describe.only('StripeGateway', function () {
   beforeEach(function () {
     stripeGateway = new StripeGateway();
   });
-  it('sets live_url');
+
+  it('sets default live_url', function () {
+    assert.equal(stripeGateway.live_url, 'https://api.stripe.com/v1/');
+  });
+
   it('defines supported countries');
   it('has default currency of USD', function () {
     assert.equal(stripeGateway.default_currency, 'usd');
   });
   it('money_format is cents');
   it('defines supported card_types');
-  it('defines homepage_url');
-  it('defines display name');
+
+  it('defines homepage_url', function () {
+    assert.equal(stripeGateway.homepage_url, 'https://stripe.com');
+  });
+
+  it('defines display name', function () {
+    assert.equal(stripeGateway.display_name, 'Stripe');
+  });
 
   describe('constructor', function () {
     it('requires login');
@@ -42,24 +54,80 @@ describe.only('StripeGateway', function () {
   });
 
   describe('authorize', function () {
-    it('is function');
-    it('calls create_post_for_auth_or_purchase');
-    it('calls commit');
+    var mock = null;
+
+    beforeEach(function () {
+      mock = sinon.mock(stripeGateway);
+    });
+
+    it('calls create_post_for_auth_or_purchase', function () {
+      mock.expects('create_post_for_auth_or_purchase').once().returns({});
+      stripeGateway.authorize(1000, {}, {});
+      mock.verify();
+    });
+    it('calls commit', function () {
+      mock.expects('commit').once().returns({});
+      stripeGateway.authorize(1000, {}, {});
+      mock.verify();
+    });
   });
 
   describe('create_post_for_auth_or_purchase', function () {
+    var mock = null,
+      money = {},
+      creditCard = {},
+      options = {
+        email: 'test@tester.com'
+      };
+
+    beforeEach(function () {
+      mock = sinon.mock(stripeGateway);
+    });
     it('is function', function () {
       assert.isFunction(stripeGateway.create_post_for_auth_or_purchase);
     });
-    it('calls add amount');
-    it('calls add creditcard');
-    it('calls add customer');
-    it('calls add customer data');
-    it('sets description');
-    it('sets metadata');
-    it('calls add_flags');
-    it('calls add_application_fee');
-    it('returns post');
+    it('calls add amount', function () {
+      mock.expects('add_amount').once();
+      stripeGateway.create_post_for_auth_or_purchase(money, creditCard, options);
+      mock.verify();
+    });
+    it('calls add creditcard', function () {
+      mock.expects('add_creditcard').once();
+      stripeGateway.create_post_for_auth_or_purchase(money, creditCard, options);
+      mock.verify();
+    });
+    it('calls add customer', function () {
+      mock.expects('add_customer').once();
+      stripeGateway.create_post_for_auth_or_purchase(money, creditCard, options);
+      mock.verify();
+    });
+    it('calls add customer data', function () {
+      mock.expects('add_customer_data').once();
+      stripeGateway.create_post_for_auth_or_purchase(money, creditCard, options);
+      mock.verify();
+    });
+    it('sets description', function () {
+      var post = stripeGateway.create_post_for_auth_or_purchase(money, creditCard, options);
+      assert.equal(post.description, options.description);
+    });
+    it('sets metadata', function () {
+      var post = stripeGateway.create_post_for_auth_or_purchase(money, creditCard, options);
+      assert.equal(post.metadata.email, options.email);
+    });
+    it('calls add_flags', function () {
+      mock.expects('add_flags').once();
+      stripeGateway.create_post_for_auth_or_purchase(money, creditCard, options);
+      mock.verify();
+    });
+    it('calls add_application_fee', function () {
+      mock.expects('add_application_fee').once();
+      stripeGateway.create_post_for_auth_or_purchase(money, creditCard, options);
+      mock.verify();
+    });
+    it.skip('returns post', function () {
+      var post = stripeGateway.create_post_for_auth_or_purchase(money, creditCard, options);
+      assert.deepEqual(post, {});
+    });
   });
 
   describe('add_amount', function () {
@@ -137,9 +205,10 @@ describe.only('StripeGateway', function () {
         assert.equal(post.card.name, card.name);
       });
       it('calls add_address', function () {
-        // spy on add_address
-        // assert that it was called
-        return;
+        var mock = sinon.mock(stripeGateway);
+        mock.expects("add_address").once();
+        stripeGateway.add_creditcard(post, card, {address: {}});
+        mock.verify();
       });
     });
 
@@ -156,42 +225,103 @@ describe.only('StripeGateway', function () {
   });
 
   describe('add_address', function () {
-    it('returns immediately if post.card is instance of Object');
-    it('uses billing address if present');
-    it('uses address if no billing address present');
-    it('sets address_line1');
-    it('sets address_line2');
-    it('sets address_country');
-    it('sets address_zip');
-    it('sets address_state');
-    it('sets address_city');
+    var address = {
+      address1: "123 Street",
+      address2: "PO Box 123",
+      country: "Canada",
+      zip: "V1Z1Z1",
+      state: "BC",
+      city: "Vancouver"
+    }, stripe_address = {
+      address_line1: address.address1,
+      address_line2: address.address2,
+      address_country: address.country,
+      address_zip: address.zip,
+      address_state: address.state,
+      address_city: address.city
+    }, post = null;
+
+    beforeEach(function () {
+      post = {
+        card: {}
+      };
+    });
+
+    it('uses billing_address if present', function () {
+      stripeGateway.add_address(post, {billing_address: address});
+      assert.deepEqual(post.card, stripe_address);
+    });
+    it('uses address if no billing address present', function () {
+      stripeGateway.add_address(post, {address: address});
+      assert.deepEqual(post.card, stripe_address);
+    });
   });
 
   describe('add_customer', function () {
-    it('is function');
-    it('sets customer to options customer if provided and credit_card number not set');
+    it('sets customer to options customer if provided and credit_card number not set', function () {
+
+      var post = {},
+        creditCard = {},
+        options = {
+          customer: { name: "Test" }
+        };
+      stripeGateway.add_customer(post, creditCard, options);
+      assert.deepEqual(post.customer, options.customer);
+    });
   });
 
   describe('add_customer_data', function () {
-    it('is function');
-    it('merges in description, ip, user_agent, referrer to metadata');
-    it('sets external_id to options.order_id');
-    it('sets payment_user_agent');
+    var post = null,
+      options = {
+        order_id: 'ABC123',
+        description: "Test",
+        ip: "127.0.0.1",
+        user_agent: "Mocha",
+        referrer: "localhost"
+      };
+
+    beforeEach(function () {
+      post = {};
+    });
+    it('merges in description, ip, user_agent, referrer to metadata', function () {
+      stripeGateway.add_customer_data(post, options);
+      assert.deepEqual(post.metadata, _.pick(options, ['description', 'ip', 'user_agent', 'referrer']));
+    });
+    it('sets external_id to options.order_id', function () {
+      stripeGateway.add_customer_data(post, options);
+      assert.equal(post.external_id, options.order_id);
+    });
+    it('sets payment_user_agent', function () {
+      stripeGateway.add_customer_data(post, options);
+      assert.equal(post.payment_user_agent, "Stripe/v1 GenericMerchantBindings/0.0.1");
+    });
   });
 
   describe('add_flags', function () {
-    it('is function');
-    it('sets uncaptured to true if options.uncaptured true');
+    it('sets uncaptured to true if options.uncaptured true', function () {
+      var post = {},
+        options = { uncaptured: true};
+      stripeGateway.add_flags(post, options);
+      assert.equal(post.uncaptured, true);
+    });
   });
 
   describe('add_application_fee', function () {
-    it('is function');
-    it('sets application fee to options.application_fee if present');
+    it('sets application fee to options.application_fee if present', function () {
+      var post = {},
+        options = { application_fee: 1000};
+      stripeGateway.add_application_fee(post, options);
+      assert.equal(post.application_fee, 1000);
+    });
   });
 
   describe('commit', function () {
-    it('is function');
-    it('calls add_expand_parameters if parameters provided');
+    it('calls add_expand_parameters if parameters provided', function () {
+      var mock = sinon.mock(stripeGateway);
+      mock.expects('add_expand_parameters').once();
+      stripeGateway.commit('post', 'test', [1]);
+      mock.verify();
+    });
     describe('request', function () {
       it('calls with method');
       it('calls with url');
@@ -209,6 +339,26 @@ describe.only('StripeGateway', function () {
     });
   });
 
-  //describe('add_expand_parameters');
+  describe('add_expand_parameters', function () {
+    var post = null,
+      options = null;
+
+    beforeEach(function () {
+      post = {};
+      options = {};
+    });
+
+    it('passes expand on if array', function () {
+      options.expand = [1, 2, 3];
+      stripeGateway.add_expand_parameters(post, options);
+      assert.equal(post.expand, options.expand);
+    });
+
+    it('wraps single value in array', function () {
+      options.expand = 1;
+      stripeGateway.add_expand_parameters(post, options);
+      assert.deepEqual(post.expand, [1]);
+    });
+  });
 
 });
